@@ -40,8 +40,6 @@ public class AccountServiceImpl implements IAccountsService {
         if(optCustomer.isPresent()){
             throw new CustomerAlreadyExistsException("Customer Already registered with given mobile number " + customerDto.getMobileNumber());
         }
-        customer.setCreatedAt(LocalDateTime.now());
-        customer.setCreatedBy("Anonymous");
         Customer savedCustomer = customerRepo.save(customer);
         accountsRepo.save(createNewAccount(savedCustomer));
     }
@@ -61,8 +59,6 @@ public class AccountServiceImpl implements IAccountsService {
         newAccount.setAccountNumber(randomAccNumber);
         newAccount.setAccountType(AccountsConstants.SAVINGS);
         newAccount.setBranchAddress(AccountsConstants.ADDRESS);
-        newAccount.setCreatedAt(LocalDateTime.now());
-        newAccount.setCreatedBy("Annonymous");
 
         return newAccount;
     }
@@ -120,4 +116,19 @@ public class AccountServiceImpl implements IAccountsService {
 
 		return isUpdated;
 	}
+
+    /**
+     * @param mobileNumber - Input Mobile Number
+     * @return boolean indicating if the delete of account details is successful or not
+     */
+    @Override
+    public boolean deleteAccount(String mobileNumber) {
+        Customer customer = customerRepo.findByMobileNumber(mobileNumber).orElseThrow(
+                () -> new ResourceNotFoundException("Customer", "Customer Mobile Number", mobileNumber)
+        );
+        accountsRepo.deleteByCustomerId(customer.getCustomerId());
+        customerRepo.deleteById(customer.getCustomerId());
+
+        return true;
+    }
 }
