@@ -1,10 +1,10 @@
-package com.eazybytes.cards.controller;
+package com.eazybytes.loans.controller;
 
-import com.eazybytes.cards.constants.CardsConstants;
-import com.eazybytes.cards.dto.CardsDto;
-import com.eazybytes.cards.dto.ErrorResponseDto;
-import com.eazybytes.cards.dto.ResponseDto;
-import com.eazybytes.cards.service.ICardsService;
+import com.eazybytes.loans.constants.LoansConstants;
+import com.eazybytes.loans.dto.ErrorResponseDto;
+import com.eazybytes.loans.dto.LoansDto;
+import com.eazybytes.loans.dto.ResponseDto;
+import com.eazybytes.loans.service.ILoanService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,53 +21,50 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
+ *
  * @author Sourav Bhowmick
- * */
-
+ */
 @Tag(
-        name = "CRUD REST APIs for Cards in EazyBank",
-        description = "CRUD REST APIs in EazyBank to CREATE, UPDATE, FETCH AND DELETE card details"
+        name = "CRUD Rest APIs for Loans in EazyBank",
+        description = "CRUD Rest APIs in EazyBank to CREATE, FETCH, UPDATE and DELETE Loans Details"
 )
 @RestController
 @RequestMapping(path = "/api", produces = {MediaType.APPLICATION_JSON_VALUE})
 @AllArgsConstructor
 @Validated
-public class CardsController {
+public class LoansController {
 
-    private ICardsService cardService;
+    private ILoanService loansService;
 
     @Operation(
-            summary = "Create card REST API",
-            description = "REST API to create new Card inside EazyBank"
+            summary = "Create Loan REST API",
+            description = "REST API to create new loan inside EazyBank"
     )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "201",
-                    description = "HTTP status created"
+                    description = "HTTP status CREATED"
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "HTTP status Inter Server Error",
+                    description = "HTTP Status Internal Server Error",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponseDto.class)
                     )
             )
     })
     @PostMapping("/create")
-    public ResponseEntity<ResponseDto> createCard(@Valid @RequestParam
-                                                    @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits")
-                                                    String mobileNumber){
-        cardService.createCard(mobileNumber);
-
+    public ResponseEntity<ResponseDto> createLoan(@RequestParam @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits") String mobileNumber){
+        loansService.createLoan(mobileNumber);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto(CardsConstants.STATUS_201, CardsConstants.MESSAGE_201));
+                .body(new ResponseDto(LoansConstants.STATUS_201, LoansConstants.MESSAGE_201));
     }
 
 
     @Operation(
-            summary = "Fetch Card Details REST API",
-            description = "REST API to fetch card details based on the mobile number"
+            summary = "Fetch Loan REST API",
+            description = "REST API yo fetch Loan details"
     )
     @ApiResponses({
             @ApiResponse(
@@ -76,25 +73,24 @@ public class CardsController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "HTTP status Internal Server Error",
+                    description = "HTTP Status Internal Server Error",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponseDto.class)
                     )
             )
     })
     @GetMapping("/fetch")
-    public ResponseEntity<CardsDto> fetchCardDetails(@RequestParam
-                                                        @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must 10 digits")
-                                                        String mobileNumber) {
-        CardsDto cardsDto = cardService.fetchCard(mobileNumber);
+    public ResponseEntity<LoansDto> fetchLoanDetails(String mobileNumber){
+        LoansDto loansDto = loansService.fetchLoan(mobileNumber);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(cardsDto);
+                .body(loansDto);
     }
 
+
     @Operation(
-            summary = "Update Card Details REST API",
-            description = "REST API to Update card details based on card number"
+            summary = "Update Loan REST API",
+            description = "REST API to update loan details"
     )
     @ApiResponses({
             @ApiResponse(
@@ -107,32 +103,31 @@ public class CardsController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "HTTP status Internal Server Error",
+                    description = "HTTP Status Internal Server Error",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponseDto.class)
                     )
             )
     })
     @PutMapping("/update")
-    public ResponseEntity<ResponseDto> updateCardDetails(@Valid
-                                                            @RequestBody
-                                                            CardsDto cardDto){
-        boolean isUpdated = cardService.updateCard(cardDto);
+    public ResponseEntity<ResponseDto> updateLoanDetails(@Valid @RequestBody LoansDto loansDto){
+        boolean isUpdated = loansService.updateLoan(loansDto);
+
         if(isUpdated){
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new ResponseDto(CardsConstants.STATUS_200, CardsConstants.MESSAGE_200));
+                    .body(new ResponseDto(LoansConstants.STATUS_200, LoansConstants.MESSAGE_200));
         }else{
             return ResponseEntity
                     .status(HttpStatus.EXPECTATION_FAILED)
-                    .body(new ResponseDto(CardsConstants.STATUS_417, CardsConstants.MESSAGE_417_UPDATE));
+                    .body(new ResponseDto(LoansConstants.STATUS_417, LoansConstants.MESSAGE_417_UPDATE));
         }
     }
 
 
     @Operation(
-            summary = "Delete Card Details REST API",
-            description = "REST API to Delete card details based on a mobile number"
+            summary = "Delete Loan REST API",
+            description = "REST API to delete loan details"
     )
     @ApiResponses({
             @ApiResponse(
@@ -145,26 +140,26 @@ public class CardsController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "HTTP status Internal Server Error",
+                    description = "HTTP Status Internal Server Error",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponseDto.class)
                     )
             )
     })
     @DeleteMapping("/delete")
-    public ResponseEntity<ResponseDto> deleteCardDetails(@RequestParam
-                                                            @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits")
-                                                            String mobileNumber){
-        boolean isDeleted = cardService.deleteCard(mobileNumber);
+    public ResponseEntity<ResponseDto> deleteLoanDetails(@RequestParam @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile Number must be 10 digits") String mobileNumber){
+        boolean isDeleted = loansService.deleteLoan(mobileNumber);
+
         if(isDeleted){
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new ResponseDto(CardsConstants.STATUS_200, CardsConstants.MESSAGE_200));
-        }else{
-            return ResponseEntity
-                    .status(HttpStatus.EXPECTATION_FAILED)
-                    .body(new ResponseDto(CardsConstants.STATUS_417, CardsConstants.MESSAGE_417_DELETE));
+                    .body(new ResponseDto(LoansConstants.STATUS_200, LoansConstants.MESSAGE_200));
         }
+
+        return ResponseEntity
+                .status(HttpStatus.EXPECTATION_FAILED)
+                .body(new ResponseDto(LoansConstants.STATUS_417, LoansConstants.MESSAGE_417_DELETE));
     }
+
 
 }
