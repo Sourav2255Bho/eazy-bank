@@ -40,7 +40,7 @@ public class LoansServiceImpl implements ILoanService {
         newLoan.setLoanType(LoansConstants.HOME_LOAN);
         newLoan.setTotalLoan(LoansConstants.NEW_LOAN_LIMIT);
         newLoan.setAmountPaid(0);
-        newLoan.setOutStandingAmount(LoansConstants.NEW_LOAN_LIMIT);
+        newLoan.setOutstandingAmount(LoansConstants.NEW_LOAN_LIMIT);
         return newLoan;
     }
 
@@ -62,7 +62,12 @@ public class LoansServiceImpl implements ILoanService {
      */
     @Override
     public boolean updateLoan(LoansDto loansDto) {
-        return false;
+        Loans loan = loansRepository.findByLoanNumber(loansDto.getLoanNumber()).orElseThrow(
+                () -> new ResourceNotFoundException("Loan", "Loan Number", loansDto.getLoanNumber())
+        );
+        LoansMapper.mapToLoans(loansDto, loan);
+        loansRepository.save(loan);
+        return true;
     }
 
     /**
@@ -71,6 +76,10 @@ public class LoansServiceImpl implements ILoanService {
      */
     @Override
     public boolean deleteLoan(String mobileNumber) {
-        return false;
+        Loans loan = loansRepository.findByMobileNumber(mobileNumber).orElseThrow(
+                () -> new ResourceNotFoundException("Loans", "Mobile Number", mobileNumber)
+        );
+        loansRepository.deleteById(loan.getLoanId());
+        return true;
     }
 }

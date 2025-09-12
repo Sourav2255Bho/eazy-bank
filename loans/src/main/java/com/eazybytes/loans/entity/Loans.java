@@ -24,5 +24,5 @@ public class Loans extends BaseEntity{
 
     private int amountPaid;
 
-    private int outStandingAmount;
+    private int outstandingAmount;
 }
